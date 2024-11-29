@@ -106,17 +106,30 @@ function clasificarSimetrica() {
 }
 
 // Función para clasificar una relación como Transitiva
+// Función para clasificar una relación como Transitiva
 function clasificarTransitiva() {
     if (!obtenerConjuntoC()) return;
 
-    // Verificar Transitividad
-    let paresRelacion = new Set(relacion.map(([a, b]) => `${a},${b}`));
-    const esTransitiva = relacion.every(([a, b]) => {
-        return relacion.every(([c, d]) => b === c && paresRelacion.has(`${a},${d}`));
-    });
+    let esTransitiva = true;
+
+    // Verificar transitividad
+    for (let [a, b] of relacion) {
+        for (let [c, d] of relacion) {
+            if (b === c) {  // Si el segundo elemento de (a,b) es igual al primero de (c,d)
+                // Verificar si existe el par (a, d)
+                if (!relacion.some(([e, f]) => e === a && f === d)) {
+                    esTransitiva = false;
+                    break;
+                }
+            }
+        }
+        if (!esTransitiva) break;  // Si ya encontramos que no es transitiva, salimos del bucle
+    }
 
     mostrarResultadoClasificacion(esTransitiva ? "La relación es Transitiva." : "La relación NO es Transitiva.");
 }
+
+
 
 // Función para verificar si los subconjuntos forman una partición
 function verificarParticion() {
