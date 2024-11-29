@@ -1,5 +1,5 @@
 let inputA, inputB, inputAC, inputBC, inputParticion;
-let botonUnion, botonInterseccion, botonDiferencia, botonDiferencia2, botonClasificacion, botonVerificarParticion;
+let botonUnion, botonInterseccion, botonDiferencia, botonDiferencia2, botonClasificarReflexiva, botonClasificarSimetrica, botonClasificarTransitiva, botonVerificarParticion;
 let resultado, resultado1, resultado2;
 let A = [];
 let B = [];
@@ -84,31 +84,38 @@ function mostrarResultadoClasificacion(texto) {
     resultado1.html(texto);
 }
 
-// Clasificación de Relaciones: Reflexiva, Simétrica, Transitiva
-function clasificarRelacion() {
+// Función para clasificar una relación como Reflexiva
+function clasificarReflexiva() {
+    if (!obtenerConjuntoC()) return;
+    
+    // Verificar Reflexividad
+    const esReflexiva = AC.every(el => relacion.some(([a, b]) => a === el && b === el));
+    
+    mostrarResultadoClasificacion(esReflexiva ? "La relación es Reflexiva." : "La relación NO es Reflexiva.");
+}
+
+// Función para clasificar una relación como Simétrica
+function clasificarSimetrica() {
     if (!obtenerConjuntoC()) return;
 
-    let esReflexiva = AC.every(x => relacion.some(([a, b]) => a === x && b === x));
-
-    let esSimetrica = relacion.every(([a, b]) => relacion.some(([c, d]) => c === b && d === a));
-
-    let esTransitiva = true;
-    for (let [a, b] of relacion) {
-        for (let [c, d] of relacion) {
-            if (b === c && !relacion.some(([x, y]) => x === a && y === d)) {
-                esTransitiva = false;
-                break;
-            }
-        }
-        if (!esTransitiva) break;
-    }
-
-    let resultadoTexto = `La relación es: <br>`;
-    resultadoTexto += `Reflexiva: ${esReflexiva ? 'Sí' : 'No'} <br>`;
-    resultadoTexto += `Simétrica: ${esSimetrica ? 'Sí' : 'No'} <br>`;
-    resultadoTexto += `Transitiva: ${esTransitiva ? 'Sí' : 'No'}`;
+    // Verificar Simetría
+    let paresSimetricos = new Set(relacion.map(([a, b]) => `${a},${b}`));
+    const esSimetrica = relacion.every(([a, b]) => paresSimetricos.has(`${b},${a}`));
     
-    mostrarResultadoClasificacion(resultadoTexto);
+    mostrarResultadoClasificacion(esSimetrica ? "La relación es Simétrica." : "La relación NO es Simétrica.");
+}
+
+// Función para clasificar una relación como Transitiva
+function clasificarTransitiva() {
+    if (!obtenerConjuntoC()) return;
+
+    // Verificar Transitividad
+    let paresRelacion = new Set(relacion.map(([a, b]) => `${a},${b}`));
+    const esTransitiva = relacion.every(([a, b]) => {
+        return relacion.every(([c, d]) => b === c && paresRelacion.has(`${a},${d}`));
+    });
+
+    mostrarResultadoClasificacion(esTransitiva ? "La relación es Transitiva." : "La relación NO es Transitiva.");
 }
 
 // Función para verificar si los subconjuntos forman una partición
@@ -121,9 +128,8 @@ function verificarParticion() {
 
     // Convertir los subconjuntos a un array de arrays
     let subconjuntos = valueParticiones.split(';').map(sub => 
-        Array.from(new Set(sub.split(',').map(x => x.trim())))
-    );
-
+        Array.from(new Set(sub.split(',').map(x => x.trim()))));
+    
     // Verificar si los subconjuntos cubren todo el conjunto A y son disjuntos
     let unionSubconjuntos = [];
     let esDisjunto = true;
@@ -184,6 +190,7 @@ function setup() {
 
     // Clasificación de Relaciones
     createElement('h1', 'Clasificación de Relaciones');
+    
     createElement('label', 'Conjunto A (elementos separados por comas): ');
     inputAC = createInput().attribute('placeholder', 'Ejemplo: 1,2,3');
     inputAC.attribute('style', 'width: 400px;');
@@ -195,21 +202,28 @@ function setup() {
     createElement('br');
     createElement('br');
 
-    botonClasificacion = createButton('Clasificar Relación');
-    botonClasificacion.mousePressed(clasificarRelacion);
+    botonClasificarReflexiva = createButton('Clasificar como Reflexiva');
+    botonClasificarReflexiva.mousePressed(clasificarReflexiva);
+
+    botonClasificarSimetrica = createButton('Clasificar como Simétrica');
+    botonClasificarSimetrica.mousePressed(clasificarSimetrica);
+
+    botonClasificarTransitiva = createButton('Clasificar como Transitiva');
+    botonClasificarTransitiva.mousePressed(clasificarTransitiva);
 
     createElement('h2', 'Resultado de la Clasificación:');
     resultado1 = createDiv();
 
     // Verificación de partición
-    createElement('h1', 'Verificar Partición de un Conjunto');
-    createElement('label', 'Conjunto A (separado por comas): ');
+    createElement('h1', 'Verificación de Partición');
+    
+    createElement('label', 'Conjunto A (elementos separados por comas): ');
     inputAP = createInput().attribute('placeholder', 'Ejemplo: 1,2,3');
     inputAP.attribute('style', 'width: 400px;');
-    createElement('br');
+    createElement('br'); 
 
-    createElement('label', 'Subconjuntos (separados por punto y coma, cada subconjunto por comas): ');
-    inputParticion = createInput().attribute('placeholder', 'Ejemplo: 1,2; 3,4');
+    createElement('label', 'Subconjuntos separados por punto y coma: ');
+    inputParticion = createInput().attribute('placeholder', 'Ejemplo: 1,2; 3');
     inputParticion.attribute('style', 'width: 400px;');
     createElement('br');
     createElement('br');
@@ -217,6 +231,6 @@ function setup() {
     botonVerificarParticion = createButton('Verificar Partición');
     botonVerificarParticion.mousePressed(verificarParticion);
 
-    createElement('h2', 'Resultado de la Verificación de la Partición:');
+    createElement('h2', 'Resultado de la Partición:');
     resultado2 = createDiv();
 }
