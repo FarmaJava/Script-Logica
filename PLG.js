@@ -246,4 +246,7 @@ function setup() {
 
     createElement('h2', 'Resultado de la Partición:');
     resultado2 = createDiv();
+
+    createElement('h3','*by Facundo Maldonado*')
+    createElement('h3','Insta: @facu.mald_')
 }
